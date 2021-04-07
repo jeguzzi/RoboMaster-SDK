@@ -4,6 +4,26 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_BUILD_TYPE Release)
 SET(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/output)
 
+find_path(AVCODEC_INCLUDE_DIR libavcodec/avcodec.h)
+find_library(AVCODEC_LIBRARY avcodec)
+find_path(AVUTIL_INCLUDE_DIR libavutil/avutil.h)
+find_library(AVUTIL_LIBRARY avutil)
+find_path(SWSCALE_INCLUDE_DIR libswscale/swscale.h)
+find_library(SWSCALE_LIBRARY swscale)
+
+find_path(OPUS_INCLUDE_DIRS
+	NAMES opus/opus.h
+	PATH_SUFFIXES include
+)
+find_library(OPUS_LIBRARIES NAMES opus)
+
+include_directories(
+	${AVCODEC_INCLUDE_DIR}
+	${SWSCALE_INCLUDE_DIR}
+	${AVUTIL_INCLUDE_DIR}
+	${OPUS_INCLUDE_DIRS}
+)
+
 set(PYBIND11_PYTHON_VERSION 3)
 add_subdirectory(pybind11)
 
@@ -19,9 +39,14 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 			${FFMEPG_LIBRARIES_PATH}/swscale.lib
 			${FFMEPG_LIBRARIES_PATH}/avutil.lib
 			${OPUS_LIBRARIES})
-	target_include_directories(libmedia_codec PRIVATE 
-			${FFMEPG_INCLUDE_DIRS} 
+	target_include_directories(libmedia_codec PRIVATE
+			${FFMEPG_INCLUDE_DIRS}
 			${OPUS_INCLUDE_DIRS})
 ELSE ()
-	target_link_libraries(libmedia_codec PRIVATE opus avcodec swscale avutil)
+	target_link_libraries(libmedia_codec PRIVATE
+		${AVCODEC_LIBRARY}
+		${SWSCALE_LIBRARY}
+		${AVUTIL_LIBRARY}
+		${OPUS_LIBRARY}
+)
 ENDIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
