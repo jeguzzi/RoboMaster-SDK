@@ -517,7 +517,7 @@ class ProtoTakePhoto(ProtoData):
 class ProtoSetZoom(ProtoData):
     _cmdset = 0x2
     _cmdid = 0x34
-    _req_size = 5
+    _req_size = 6
 
     def __init__(self):
         self._digital_enable = 1
