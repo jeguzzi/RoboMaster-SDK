@@ -48,7 +48,7 @@ class MsgHandler:
         return cmd_set * 256 + cmd_id
 
     def dict_key(self):
-        logger.debug('MsgHandler: dict_key, isinstance:', isinstance(self._proto_data, protocol.ProtoData))
+        logger.debug('MsgHandler: dict_key, isinstance: %d', isinstance(self._proto_data, protocol.ProtoData))
         if self._proto_data:
             return self.make_dict_key(self.proto_data._cmdset, self.proto_data._cmdid)
         return None
