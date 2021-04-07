@@ -77,15 +77,26 @@ class Uart(module.Module):
                 logger.warning("Subscriber: _publish, msg.get_proto None, msg:{0}".format(msg))
             else:
                 if self._callback:
-                    self.serial_process_decode(proto._buf)
-                    self.serial_process_exec()
+                    # CHANGED(jeguzzi): should be msg not proto._buf
+                    # and should be called only if it's not an ack
+                    # self.serial_process_decode(proto._buf)
+                    # self.serial_process_exec()
+                    if not msg.is_ack:
+                        self.serial_process_decode(msg)
+                        self.serial_process_exec()
                     pass
         pass
 
+    # TODO(jeguzzi): verify correctness
     def serial_process_decode(self, msg):
-        buf_len = msg._buf[2] << 8 | msg._buf[3]
-        if msg._buf[1] == 1 and msg._len == (buf_len+3):
-            self._rec_data = msg._buf[4:]
+        # CHANGED(jeguzzi): changed to make it coherent with outgoing messages
+        # and the length (i.e. either msg_len + 3 iff rec_data starts at index 3)
+        # buf_len = msg._buf[2] << 8 | msg._buf[3]
+        # if msg._buf[1] == 1 and msg._len == (buf_len+3):
+        #     self._rec_data = msg._buf[4:]
+        buf_len = msg._buf[1] << 8 | msg._buf[2]
+        if msg._buf[0] == 1 and len(msg._buf) == (buf_len + 3):
+            self._rec_data = msg._buf[3:]
 
     def sub_serial_msg(self, callback=None, *args):
         self._callback = callback
