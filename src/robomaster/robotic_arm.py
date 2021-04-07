@@ -49,7 +49,7 @@ class ArmSubject(dds.Subject):
         return self._pos_x, self._pos_y
 
     def decode(self, buf):
-        self._pos_x, self._pos_y = struct.unpack('<II', buf[1:])
+        self._pos_x, self._pos_y = struct.unpack('<ii', buf[1:])
 
 
 class RoboticArmMoveAction(action.Action):
