@@ -143,8 +143,8 @@ CHASSIS_SPD_Z_CHECKER = UnitChecker('chassis spd z', default=0, start=-600, end=
 
 WHEEL_SPD_CHECKER = UnitChecker('wheel speed', default=0, start=-1000, end=1000, step=1, decimal=0)
 
-PWM_VALUE_CHECKER = UnitChecker('pwm value', default=0, start=0, end=50000, step=1, decimal=0)
-PWM_FREQ_CHECKER = UnitChecker('pwm freq', default=1000, start=0, end=100, step=1, decimal=0, scale=10)
+PWM_VALUE_CHECKER = UnitChecker('pwm value', default=0, start=0, end=100, step=1, decimal=0)
+PWM_FREQ_CHECKER = UnitChecker('pwm freq', default=1000, start=0, end=50000, step=1, decimal=0, scale=10)
 
 # 机械臂、机械爪数值检查
 ROBOTIC_ARM_POS_CHECK = UnitChecker('robotic arm pos', default=0, start=None, end=None, step=1, decimal=0)
