@@ -68,9 +68,9 @@ class Blaster(module.Module):
         proto._g = util.COLOR_VALUE_CHECKER.check(brightness)
         proto._r = util.COLOR_VALUE_CHECKER.check(brightness)
         proto._b = util.COLOR_VALUE_CHECKER.check(brightness)
-        if effect is LED_OFF:
+        if effect == LED_OFF:
             proto._effect = 0
-        elif effect is LED_ON:
+        elif effect == LED_ON:
             proto._effect = 1
         else:
             logger.warning("Blaster: set_led, unsupported effect value {0}".format(effect))

@@ -110,15 +110,15 @@ class Led(module.Module):
         proto._r = util.COLOR_VALUE_CHECKER.val2proto(r)
         proto._g = util.COLOR_VALUE_CHECKER.val2proto(g)
         proto._b = util.COLOR_VALUE_CHECKER.val2proto(b)
-        if effect is EFFECT_OFF:
+        if effect == EFFECT_OFF:
             proto._effect_mode = 0
-        elif effect is EFFECT_ON:
+        elif effect == EFFECT_ON:
             proto._effect_mode = 1
-        elif effect is EFFECT_BREATH:
+        elif effect == EFFECT_BREATH:
             proto._effect_mode = 2
             proto._t1 = 1000
             proto._t2 = 1000
-        elif effect is EFFECT_FLASH:
+        elif effect == EFFECT_FLASH:
             proto._effect_mode = 3
             if freq == 0:
                 logger.warning("Led: set_led: freq is zero.")
@@ -126,7 +126,7 @@ class Led(module.Module):
             t = int(500/freq)
             proto._t1 = t
             proto._t2 = t
-        elif effect is EFFECT_SCROLLING:
+        elif effect == EFFECT_SCROLLING:
             proto._effect_mode = 4
             proto._t1 = 30
             proto._t2 = 40
@@ -169,9 +169,9 @@ class Led(module.Module):
         proto._r = util.COLOR_VALUE_CHECKER.val2proto(r)
         proto._g = util.COLOR_VALUE_CHECKER.val2proto(g)
         proto._b = util.COLOR_VALUE_CHECKER.val2proto(b)
-        if effect is EFFECT_OFF:
+        if effect == EFFECT_OFF:
             proto._effect_mode = 0
-        elif effect is EFFECT_ON:
+        elif effect == EFFECT_ON:
             proto._effect_mode = 1
         else:
             logger.warning("Led: set_gimbal_led, unsupported effect {0}".format(effect))

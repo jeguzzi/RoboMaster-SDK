@@ -368,9 +368,9 @@ class EPCamera(module.Module, Camera):
         # 1 表示SDK控制模式
         proto._ctrl = 1
         # 0 表示WiFi， 1 表示RNDIS
-        if conn_type is conn.CONNECTION_WIFI_AP or conn_type is conn.CONNECTION_WIFI_STA:
+        if conn_type == conn.CONNECTION_WIFI_AP or conn_type == conn.CONNECTION_WIFI_STA:
             proto._conn_type = 0
-        elif conn_type is conn.CONNECTION_USB_RNDIS:
+        elif conn_type == conn.CONNECTION_USB_RNDIS:
             proto._conn_type = 1
         else:
             logger.error("Camera: _stream_sdk, conn_type:{0} is not "
@@ -402,9 +402,9 @@ class EPCamera(module.Module, Camera):
             logger.warning("Camera, _video_stream, unsupported resolution {0}".format(resolution))
 
         conn_type = self._robot.conn_type
-        if conn_type is conn.CONNECTION_WIFI_AP or conn_type is conn.CONNECTION_WIFI_STA:
+        if conn_type == conn.CONNECTION_WIFI_AP or conn_type == conn.CONNECTION_WIFI_STA:
             proto._conn_type = 0
-        elif conn_type is conn.CONNECTION_USB_RNDIS:
+        elif conn_type == conn.CONNECTION_USB_RNDIS:
             proto._conn_type = 1
         else:
             logger.error("Camera: _video_stream, conn_type:{0} is not supported.".format(conn_type))
@@ -416,9 +416,9 @@ class EPCamera(module.Module, Camera):
         # 3 表示视音频流控制模式
         proto._ctrl = 3
         conn_type = self._robot.conn_type
-        if conn_type is conn.CONNECTION_WIFI_AP or conn_type is conn.CONNECTION_WIFI_STA:
+        if conn_type == conn.CONNECTION_WIFI_AP or conn_type == conn.CONNECTION_WIFI_STA:
             proto._conn_type = 0
-        elif conn_type is conn.CONNECTION_USB_RNDIS:
+        elif conn_type == conn.CONNECTION_USB_RNDIS:
             proto._conn_type = 1
         else:
             logger.error("Camera: _audio_stream, conn_type:{0} is not supported.".format(conn_type))

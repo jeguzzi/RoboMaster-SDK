@@ -170,15 +170,15 @@ class Vision(module.Module):
             logger.error("Vision: sub_detect_info, get_vision_function failed!")
             return False
 
-        if name is PERSON:
+        if name == PERSON:
             self._func_mask = self._func_mask | (1 << 1)
-        elif name is GESTURE:
+        elif name == GESTURE:
             self._func_mask = self._func_mask | (1 << 2)
-        elif name is LINE:
+        elif name == LINE:
             self._func_mask = self._func_mask | (1 << 4)
-        elif name is MARKER:
+        elif name == MARKER:
             self._func_mask = self._func_mask | (1 << 5)
-        elif name is ROBOT:
+        elif name == ROBOT:
             self._func_mask = self._func_mask | (1 << 7)
         else:
             logger.error("Vision: sub_detect_info, params error, name:{0}".format(name))
@@ -191,7 +191,7 @@ class Vision(module.Module):
             subject = VisionPushEvent()
             protocol.ProtoVisionDetectInfo()
             sub.add_subject_event_info(subject, callback, args, kw)
-            if name is LINE or name is MARKER:
+            if name == LINE or name == MARKER:
                 self._set_color(name, color)
             return True
         else:
@@ -287,9 +287,9 @@ class Vision(module.Module):
 
     def _set_color(self, name, color):
         proto = protocol.ProtoVisionSetColor()
-        if name is LINE:
+        if name == LINE:
             proto._type = 1
-        elif name is MARKER:
+        elif name == MARKER:
             proto._type = 2
         else:
             logger.warning("Vision: _set_color, unsupported name {0}".format(name))
