@@ -352,12 +352,12 @@ class ActionDispatcher(object):
                 act = self._in_progress[k]
                 if action.target == act.target:
                     action = list(self._in_progress.values())[0]
-                    logger.error("Robot is already performing {0} action(s) {1}".format(len(self._in_progress), action))
-                    raise Exception("Robot is already performing {0} action(s) {1}".format(
-                        len(self._in_progress), action))
+                    n = len(self._in_progress)
+                    self._in_progress_mutex.release()
+                    raise RuntimeError("Robot is already performing {0} action(s) {1}".format(n, action))
             self._in_progress_mutex.release()
         if action.is_running:
-            raise Exception("Action is already running")
+            raise RuntimeError("Action is already running")
 
         action_msg = self.get_msg_by_action(action)
         action_key = action.make_action_key()
