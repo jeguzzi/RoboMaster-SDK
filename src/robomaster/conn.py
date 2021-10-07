@@ -473,25 +473,35 @@ class ConnectionHelper:
 
 class FtpConnection:
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._ftp = FTP()
-        self._target = None
-        self._bufsize = 1024
         self._ftp.set_debuglevel(0)
+        self._connected = False
+        self._bufsize = 1024
 
-    def connect(self, ip):
-        self._target = ip
-        logger.info("FtpConnection: connect ip: {0}".format(ip))
-        return self._ftp.connect(ip, 21)
+    @property
+    def connected(self) -> bool:
+        return self._connected
 
-    def upload(self, src_file, target_file):
+    def connect(self, ip: str) -> None:
+        logger.info(f"FtpConnection: connect ip: {ip}")
         try:
-            fp = open(src_file, 'rb')
-            self._ftp.storbinary("STOR " + target_file, fp, self._bufsize)
-            fp.close()
-        except Exception as e:
-            logger.warning("FtpConnection: upload e {0}".format(e))
+            self._ftp.connect(ip, 21, timeout=1.0)
+            self._connected = True
+        except:
+            logger.warning(f"FtpConnection: could not connect to {ip}")
+            self._connected = False
 
-    def stop(self):
-        if self._ftp:
+    def upload(self, src_file: str, target_file: str) -> None:
+        if self._connected:
+            try:
+                with open(src_file, 'rb') as fp:
+                    self._ftp.storbinary("STOR " + target_file, fp, self._bufsize)
+            except Exception as e:
+                logger.warning("FtpConnection: upload e {0}".format(e))
+        else:
+            logger.warning("FtpConnection: connection is not open, cannot upload e")
+
+    def stop(self) -> None:
+        if self._connected:
             self._ftp.close()
