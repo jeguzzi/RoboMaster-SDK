@@ -76,13 +76,13 @@ def scan_robot_ip(user_sn=None, timeout=3.0):
             find_robot = False
             robot_ip = None
             start = time.time()
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.bind(("0.0.0.0", config.ROBOT_BROADCAST_PORT))
+            s.settimeout(timeout)
             while not find_robot:
                 end = time.time()
                 if end - start > timeout:
                     break
-                s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                s.bind(("0.0.0.0", config.ROBOT_BROADCAST_PORT))
-                s.settimeout(1)
                 data, ip = s.recvfrom(1024)
                 recv_sn = get_sn_form_data(data)
                 logger.info("conn: scan_robot_ip, data:{0}, ip:{1}".format(recv_sn, ip))
