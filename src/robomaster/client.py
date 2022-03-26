@@ -222,7 +222,7 @@ timeout!".format(msg.receiver, msg.cmdset, msg.cmdid))
             if msg is None:
                 logger.warning("Client: _recv_task, recv msg is None, skip.")
                 continue
-            logger.info("Client: recv_msg, {0}".format(msg))
+            logger.debug("Client: recv_msg, {0}".format(msg))
             self._has_recv += 1
             self._dispatch_to_send_sync(msg)
             self._dispatch_to_callback(msg)

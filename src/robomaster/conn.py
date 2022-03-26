@@ -142,6 +142,7 @@ def scan_robot_ip_list(timeout=3.0):
 
 
 class BaseConnection(object):
+
     def __init__(self):
         self._sock = None
         self._buf = bytearray()
@@ -175,6 +176,8 @@ class BaseConnection(object):
         try:
             if self._sock:
                 data, host = self._sock.recvfrom(2048)
+        except socket.timeout:
+            return None
         except Exception as e:
             logger.warning("Connection: recv, exception:{0}".format(e))
             raise
@@ -185,7 +188,6 @@ class BaseConnection(object):
         if len(self._buf) == 0:
             logger.warning("Connection: recv buff None.")
             return None
-
         msg, self._buf = protocol.decode_msg(self._buf, self._proto)
         if not msg:
             logger.warning("Connection: protocol.decode_msg is None.")
@@ -213,7 +215,7 @@ class BaseConnection(object):
             raise
 
 
-class Connection(BaseConnection):
+class _Connection(BaseConnection):
     def __init__(self, host_addr, target_addr, proto="v1", protocol=CONNECTION_PROTO_UDP):
         self._host_addr = host_addr
         self._target_addr = target_addr
@@ -233,6 +235,73 @@ class Connection(BaseConnection):
     @property
     def protocol(self):
         return self._proto
+
+
+from queue import Queue
+
+
+class Connection(BaseConnection):
+
+    timeout = 0.01
+
+    def __init__(self, host_addr, target_addr, proto="v1", protocol=CONNECTION_PROTO_UDP):
+        super().__init__()
+        self._host_addr = host_addr
+        self._target_addr = target_addr
+        self._proto = proto
+        self._proto_type = protocol
+        self._tx_queue = Queue()
+        self._rx_queue = Queue()
+        self._running= False
+        self._thread = None
+
+    def __repr__(self):
+        return "Connection, host:{0}, target:{1}".format(self._host_addr, self._target_addr)
+
+    @property
+    def target_addr(self):
+        return self._target_addr
+
+    @property
+    def protocol(self):
+        return self._proto
+
+    def recv(self):
+        return self._rx_queue.get()
+
+    def close(self):
+        if self._thread:
+            self._running = False
+            self._thread.join()
+        super().close()
+
+    def create(self):
+        super().create()
+        self._sock.settimeout(self.timeout)
+        self._thread = threading.Thread(target=self._task)
+        self._thread.start()
+
+    def _task(self):
+        self._running = True
+        while self._running:
+            while not self._tx_queue.empty():
+                (buf, addr) = self._tx_queue.get_nowait()
+                if self._sock:
+                    try:
+                        self._sock.sendto(buf, addr)
+                    except Exception as e:
+                        logger.warning("Connection: send, exception:{0}".format(e))
+                        raise
+            msg = super().recv()
+            if msg is not None:
+                self._rx_queue.put_nowait(msg)
+        self._running = False
+
+    def send(self, buf):
+        self._tx_queue.put((buf, self._target_addr))
+
+    def send_self(self, buf):
+        self._tx_queue.put((buf, self._host_addr))
 
 
 class SdkConnection(BaseConnection):
