@@ -7,6 +7,7 @@ extern "C" {
 #include <libavutil/avutil.h>
 #include <libavutil/mem.h>
 #include <libswscale/swscale.h>
+#include <libavutil/imgutils.h>
 }
 
 #include <errno.h>
@@ -52,13 +53,15 @@ class H264Decoder {
 private:
     AVCodecContext        *context;
     AVFrame               *frame;
-    AVCodec               *codec;
+    // CHANGED(Jerome): should now be const
+    const AVCodec         *codec;
     AVCodecParserContext  *parser;
     AVPacket              *pkt;
 
 public:
     H264Decoder() {
-        avcodec_register_all();
+        // CHANGED(Jerome): deprecated since FFMPEG 4.0
+        //avcodec_register_all();
 
         codec = avcodec_find_decoder(AV_CODEC_ID_H264);
         if (!codec)
@@ -68,9 +71,9 @@ public:
         if (!context)
             throw CodecException("H264Decoder: avcodec_alloc_context3 failed!");
 
-        if(codec->capabilities & CODEC_CAP_TRUNCATED) {
-            context->flags |= CODEC_FLAG_TRUNCATED;
-        }
+        // if(codec->capabilities & CODEC_CAP_TRUNCATED) {
+        //     context->flags |= CODEC_FLAG_TRUNCATED;
+        // }
 
         int err = avcodec_open2(context, codec, nullptr);
         if (err < 0)
@@ -109,11 +112,19 @@ public:
         return pkt->size > 0;
     }
 
-    const AVFrame& decode_frame() {
+    const AVFrame& decode_frame(bool & valid) {
         int got_picture = 0;
-        int nread = avcodec_decode_video2(context, frame, &got_picture, pkt);
-        if (nread < 0 || got_picture == 0)
-            throw CodecException("H264Decoder: decode_frame, avcodec_decode_video2 failed!");
+        // CHANGED(Jerome): avcodec_decode_video2 is deprecated
+        // decode ~= receive . send but both can fail
+        // (especially receive may not returna frame if not ready)
+        // int nread = avcodec_decode_video2(context, frame, &got_picture, pkt);
+        // if (nread < 0 || got_picture == 0)
+        //     throw CodecException("H264Decoder: decode_frame, avcodec_decode_video2 failed!");
+        int r = avcodec_send_packet(context, pkt);
+        if (r == 0) {
+          r = avcodec_receive_frame(context, frame);
+        }
+        valid = r == 0;
         return *frame;
     }
 };
@@ -140,7 +151,11 @@ public:
     }
 
     int predict_size(int w, int h) {
-        return avpicture_fill((AVPicture*)output_frame_, nullptr, output_format_, w, h);
+      // CHANGED(Jerome): deprecated
+      // return avpicture_fill((AVPicture*)output_frame_, nullptr, output_format_, w, h);
+      // TODO(Jerome): what value should align (last arg) have?
+      return av_image_fill_arrays(output_frame_->data, output_frame_->linesize,
+                                  nullptr, output_format_, w, h, 1);
     }
 
     const AVFrame& convert(const AVFrame &frame, unsigned char* out_bgr) {
@@ -153,8 +168,11 @@ public:
                                         nullptr, nullptr, nullptr);
         if (!context_)
             throw CodecException("FormatConverter: convert, sws_getCachedContext failed!");
-
-        avpicture_fill((AVPicture*)output_frame_, out_bgr, output_format_, w, h);
+        // CHANGED(Jerome): deprecated
+        // avpicture_fill((AVPicture*)output_frame_, out_bgr, output_format_, w, h);
+        // TODO(Jerome): what value should align (last arg) have?
+        av_image_fill_arrays(output_frame_->data, output_frame_->linesize,
+                             out_bgr, output_format_, w, h, 1);
 
         sws_scale(context_, frame.data, frame.linesize, 0, h,
                   output_frame_->data, output_frame_->linesize);
@@ -185,12 +203,17 @@ public:
     py::tuple decode_frame_impl(const ubyte *data_in, ssize_t len, ssize_t &num_consumed, bool &is_frame_available) {
         py::gil_scoped_release decode_release;
         num_consumed = decoder->parse((ubyte*)data_in, len);
-
+        bool valid = false;
         if (is_frame_available = decoder->is_frame_available()) {
-            const auto &frame = decoder->decode_frame();
+            const auto &frame = decoder->decode_frame(valid);
+            if(!valid) {
+              py::gil_scoped_acquire decode_acquire;
+              return py::make_tuple(py::none(), 0, 0, 0);
+            }
             int w, h; std::tie(w,h) = width_height(frame);
+            // printf("w %d h %d\n", w, h);
             Py_ssize_t out_size = converter->predict_size(w,h);
-
+            // printf("size %d\n", out_size);
             py::gil_scoped_acquire decode_acquire;
             py::object py_out_str = py::reinterpret_steal<py::object>(PYBIND11_BYTES_FROM_STRING_AND_SIZE(NULL, out_size));
             char* out_buffer = PYBIND11_BYTES_AS_STRING(py_out_str.ptr());
@@ -226,7 +249,7 @@ public:
 
     ~PyH264Decoder() = default;
 
-    py::list decode(const py::str &input) {
+    py::list decode(const py::bytes &input) {
         ssize_t len = PYBIND11_BYTES_SIZE(input.ptr());
         const ubyte* data_in = (const ubyte*)(PYBIND11_BYTES_AS_STRING(input.ptr()));
 
