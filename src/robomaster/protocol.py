@@ -427,9 +427,9 @@ class ProtoGetVersion(ProtoData):
         return b''
 
     def unpack_resp(self, buf, offset=0):
+        print('ProtoGetVersion', len(buf), buf)
         if len(buf) < self._resp_size:
-            raise Exception("buf length is not enouph.")
-
+            raise Exception("buf length is not enough.")
         self._retcode = buf[0]
         if self._retcode != 0:
             return False
@@ -1504,7 +1504,8 @@ class ProtoChassisSerialSet(ProtoData):
                        (self._baud_rate & 0x7)
 
         self._fun_en = ((self._tx_en & 0x1) << 1) | (self._rx_en & 0x1)
-        struct.pack_into('<BBHH', buf, 0, self._config, 0xff, self._rx_size, self._tx_size)
+        # struct.pack_into('<BBHH', buf, 0, self._config, 0xff, self._rx_size, self._tx_size)
+        struct.pack_into('<BBHH', buf, 0, self._config, self._fun_en, self._rx_size, self._tx_size)
         return buf
 
     def unpack_resp(self, buf, offset=0):
