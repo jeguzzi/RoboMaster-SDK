@@ -50,6 +50,7 @@ setup(
         'opencv-python >= 4.2',
         'netaddr >= 0.8',
         'netifaces >= 0.10',
-        'myqr >= 2.3'
+        'myqr >= 2.3',
+        'audioop-lts; python_version > "3.12"'
     ]
 )
