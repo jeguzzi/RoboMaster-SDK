@@ -24,8 +24,23 @@ include_directories(
 	${OPUS_INCLUDE_DIRS}
 )
 
-set(PYBIND11_PYTHON_VERSION 3)
-add_subdirectory(pybind11)
+# set(PYBIND11_PYTHON_VERSION 3)
+# add_subdirectory(pybind11)
+
+find_package(pybind11 3 QUIET)
+if(NOT pybind11_FOUND)
+  include(FetchContent)
+  FetchContent_Declare(
+    pybind11
+    GIT_REPOSITORY https://github.com/pybind/pybind11.git
+    GIT_TAG v3.0.1
+    GIT_SHALLOW TRUE
+    OVERRIDE_FIND_PACKAGE)
+  set(PYBIND11_INSTALL OFF)
+  set(INCLUDE_PYBIND11 false)
+  FetchContent_MakeAvailable(pybind11)
+  find_package(pybind11 REQUIRED)
+endif()
 
 pybind11_add_module(libmedia_codec src/media_codec.cpp)
 
