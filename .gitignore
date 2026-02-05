@@ -1,5 +1,6 @@
 build
 dist
 
-src/robomaster.egg-info
+*.egg-info
 __pycache__
+.DS_Store
