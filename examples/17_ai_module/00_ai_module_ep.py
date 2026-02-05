@@ -14,10 +14,27 @@
 # limitations under the License.
 
 
-SDK_VERSION_MAJOR = 0
-SDK_VERSION_MINOR = 1
-SDK_VERSION_REVISION = 1
-SDK_VERSION_BUILD = 68
+import time
+from robomaster import robot
 
-__version__ = "{0:d}.{1:d}.{2:d}.{3:d}".format(SDK_VERSION_MAJOR, SDK_VERSION_MINOR,
-                                               SDK_VERSION_REVISION, SDK_VERSION_BUILD)
+
+def ai_callback(sub_info):
+    print(sub_info)
+    num, list_info = sub_info
+    for i in range(0, num):
+        id, x, y, w, h, C = list_info[i]
+        print("ai target index:{0} id:{1}, x:{2}, y:{3}, w:{4}, h:{5}, C:{6}".format(i, id, x, y, w, h, C))
+
+
+if __name__ == '__main__':
+    ep_robot = robot.Robot()
+    ep_robot.initialize(conn_type="rndis")
+
+    ep_ai_module = ep_robot.ai_module
+
+    # 订阅ai模块的事件
+    ep_ai_module.sub_ai_event(callback=ai_callback)
+    time.sleep(15)
+    ep_ai_module.unsub_ai_event()
+
+    ep_robot.close()
