@@ -95,7 +95,9 @@ public:
 
     ~H264Decoder() {
         av_parser_close(parser);
-        avcodec_close(context);
+        // CHANGED(Jerome): deprecated since 2024-02-09.
+        // avcodec_close(context);
+        avcodec_free_context(&context);
         av_free(context);
         av_frame_free(&frame);
         delete pkt;
