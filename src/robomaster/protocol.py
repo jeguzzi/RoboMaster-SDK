@@ -427,7 +427,7 @@ class ProtoGetVersion(ProtoData):
         return b''
 
     def unpack_resp(self, buf, offset=0):
-        print('ProtoGetVersion', len(buf), buf)
+        # print('ProtoGetVersion', len(buf), buf)
         if len(buf) < self._resp_size:
             raise Exception("buf length is not enough.")
         self._retcode = buf[0]
