@@ -60,13 +60,15 @@ class LiveView(object):
         try:
             logger.info("Liveview: try to connect addr {0}, proto={1}".format(
                 addr, ip_proto))
-            self._video_stream_conn.connect(addr, ip_proto)
-            self._video_streaming = True
-            self._video_decoder_thread = threading.Thread(target=self._video_decoder_task)
-            self._video_decoder_thread.start()
-            if display:
-                self._video_display_thread = threading.Thread(target=self._video_display_task)
-                self._video_display_thread.start()
+            if self._video_stream_conn.connect(addr, ip_proto):
+                self._video_streaming = True
+                self._video_decoder_thread = threading.Thread(target=self._video_decoder_task)
+                self._video_decoder_thread.start()
+                if display:
+                    self._video_display_thread = threading.Thread(target=self._video_display_task)
+                    self._video_display_thread.start()
+            else:
+                return False
         except Exception as e:
             logger.error("Liveview: start_video_stream, exception {0}".format(e))
             return False
@@ -108,7 +110,10 @@ class LiveView(object):
         for frame_data in frames:
             (frame, width, height, ls) = frame_data
             if frame:
-                frame = numpy.fromstring(frame, dtype=numpy.ubyte, count=len(frame), sep='')
+                try:
+                    frame = numpy.frombuffer(frame, dtype=numpy.ubyte, count=len(frame))
+                except AttributeError:
+                    frame = numpy.fromstring(frame, dtype=numpy.ubyte, count=len(frame), sep='')
                 frame = (frame.reshape((height, width, 3)))
                 res_frame_list.append(frame)
         return res_frame_list
@@ -161,10 +166,12 @@ class LiveView(object):
         try:
             logger.info("LiveView: try to connect addr:{0}, ip_proto:{1}".format(
                 addr, ip_proto))
-            self._audio_stream_conn.connect(addr, ip_proto)
-            self._audio_decoder_thread = threading.Thread(
-                target=self._audio_decoder_task)
-            self._audio_decoder_thread.start()
+            if self._audio_stream_conn.connect(addr, ip_proto):
+                self._audio_decoder_thread = threading.Thread(
+                    target=self._audio_decoder_task)
+                self._audio_decoder_thread.start()
+            else:
+                return False
         except Exception as e:
             logger.error("LiveView: start_audio_stream, exception {0}".format(e))
             return False
