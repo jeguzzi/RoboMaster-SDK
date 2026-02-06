@@ -31,7 +31,8 @@ jobs:
           cache-key: ubuntu-latest
           revision: master
           token: ${{ github.token }}
-          manifest-dir: ${{ github.workspace }}/src/sdk/lib/libmedia_codec
+          pkgs: opus
+          # manifest-dir: ${{ github.workspace }}/src/sdk/lib/libmedia_codec
       # - name: Bootstrap vcpkg
       #   shell: bash
       #   run: ${{ github.workspace }}/vcpkg/bootstrap-vcpkg.sh
