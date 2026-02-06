@@ -18,8 +18,8 @@ jobs:
           python-version: "3.14"
       - name: install deps
         run: pip install build
-      - name: Run vcpkg
-        run: ${{ github.workspace }}/vcpkg/vcpkg install --dry-run
+      # - name: Run vcpkg
+        # run: ${{ github.workspace }}/vcpkg/vcpkg install --dry-run
       - name: build wheel
         run: |
           cd src/sdk/lib/libmedia_codec
