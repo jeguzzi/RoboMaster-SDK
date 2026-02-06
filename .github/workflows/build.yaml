@@ -18,10 +18,12 @@ jobs:
           python-version: "3.14"
       - name: install deps
         run: pip install build
+      - name: Bootstrap vcpkg
+        shell: bash
+        run: ${{ github.workspace }}/vcpkg/bootstrap-vcpkg.sh
       # - name: Run vcpkg
-        # run: ${{ github.workspace }}/vcpkg/vcpkg install --dry-run
+      #   run: ${{ github.workspace }}/vcpkg/vcpkg install --dry-run
       - name: build wheel
         run: |
           cd src/sdk/lib/libmedia_codec
           python -m build -w
-
