@@ -23,15 +23,19 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install nasm -y
-      - name: vcpkg build
-        uses: johnwason/vcpkg-action@v7
-        id: vcpkg
+      - name: vcpkg
+        uses: lukka/run-vcpkg@v11
         with:
-          triplet: x64-linux-release
-          cache-key: ubuntu-latest
-          revision: master
-          token: ${{ github.token }}
-          manifest-dir: ${{ github.workspace }}/src/sdk/lib/libmedia_codec
+          vcpkgJsonGlob: ${{ github.workspace }}/src/sdk/lib/libmedia_codec/vcpkg.json
+      # - name: vcpkg build
+      #   uses: johnwason/vcpkg-action@v7
+      #   id: vcpkg
+      #   with:
+      #     triplet: x64-linux-release
+      #     cache-key: ubuntu-latest
+      #     revision: master
+      #     token: ${{ github.token }}
+      #     manifest-dir: ${{ github.workspace }}/src/sdk/lib/libmedia_codec
       - name: build wheel
         run: |
           cd src/sdk/lib/libmedia_codec
