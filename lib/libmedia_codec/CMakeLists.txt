@@ -1,11 +1,9 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.15)
 project (robomaster_media_codec)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_BUILD_TYPE Release)
-# set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/output)
-# set(VCPKG_LIBRARY_LINKAGE dynamic)
-# set(VCPKG_CRT_LINKAGE static)
+set(VCPKG_BUILD_TYPE Release)
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(AVCODEC    REQUIRED    IMPORTED_TARGET libavcodec)
@@ -34,11 +32,14 @@ endif()
 pybind11_add_module(libmedia_codec src/media_codec.cpp)
 
 target_link_libraries(libmedia_codec PRIVATE
+	"-Wl,-Bsymbolic"
 	PkgConfig::AVCODEC
 	PkgConfig::AVUTIL
 	PkgConfig::SWSCALE
 	Opus::opus
 )
+
+set_target_properties(libmedia_codec PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
 include(CheckIPOSupported)
 check_ipo_supported(RESULT ipo_supported OUTPUT error)
