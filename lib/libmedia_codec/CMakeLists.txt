@@ -1,32 +1,21 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.12)
 project (robomaster_media_codec)
 set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_BUILD_TYPE Release)
-SET(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/output)
+# set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/output)
+# set(VCPKG_LIBRARY_LINKAGE dynamic)
+# set(VCPKG_CRT_LINKAGE static)
 
-find_path(AVCODEC_INCLUDE_DIR libavcodec/avcodec.h)
-find_library(AVCODEC_LIBRARY avcodec)
-find_path(AVUTIL_INCLUDE_DIR libavutil/avutil.h)
-find_library(AVUTIL_LIBRARY avutil)
-find_path(SWSCALE_INCLUDE_DIR libswscale/swscale.h)
-find_library(SWSCALE_LIBRARY swscale)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(AVCODEC    REQUIRED    IMPORTED_TARGET libavcodec)
+pkg_check_modules(AVUTIL     REQUIRED    IMPORTED_TARGET libavutil)
+pkg_check_modules(SWSCALE    REQUIRED    IMPORTED_TARGET libswscale)
 
-find_path(OPUS_INCLUDE_DIRS
-	NAMES opus/opus.h
-	PATH_SUFFIXES include
-)
-find_library(OPUS_LIBRARIES NAMES opus)
+find_package(Opus CONFIG REQUIRED)
 
-include_directories(
-	${AVCODEC_INCLUDE_DIR}
-	${SWSCALE_INCLUDE_DIR}
-	${AVUTIL_INCLUDE_DIR}
-	${OPUS_INCLUDE_DIRS}
-)
-
-# set(PYBIND11_PYTHON_VERSION 3)
-# add_subdirectory(pybind11)
-
+set(Python3_FIND_STRATEGY LOCATION)
+find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
 find_package(pybind11 3 QUIET)
 if(NOT pybind11_FOUND)
   include(FetchContent)
@@ -44,24 +33,20 @@ endif()
 
 pybind11_add_module(libmedia_codec src/media_codec.cpp)
 
-IF (CMAKE_SYSTEM_NAME MATCHES "Windows")
-	SET(OPUS_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/src/opus-share/include")
-	SET(OPUS_LIBRARIES "${CMAKE_SOURCE_DIR}/src/opus-share/lib/opus.lib")
-	SET(FFMEPG_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/src/ffmpeg-4.2.2-win64-dev/include")
-	SET(FFMEPG_LIBRARIES_PATH "${CMAKE_SOURCE_DIR}/src/ffmpeg-4.2.2-win64-dev/lib")
-	target_link_libraries(libmedia_codec PRIVATE
-			${FFMEPG_LIBRARIES_PATH}/avcodec.lib
-			${FFMEPG_LIBRARIES_PATH}/swscale.lib
-			${FFMEPG_LIBRARIES_PATH}/avutil.lib
-			${OPUS_LIBRARIES})
-	target_include_directories(libmedia_codec PRIVATE
-			${FFMEPG_INCLUDE_DIRS}
-			${OPUS_INCLUDE_DIRS})
-ELSE ()
-	target_link_libraries(libmedia_codec PRIVATE
-		${AVCODEC_LIBRARY}
-		${SWSCALE_LIBRARY}
-		${AVUTIL_LIBRARY}
-		${OPUS_LIBRARY}
+target_link_libraries(libmedia_codec PRIVATE
+	PkgConfig::AVCODEC
+	PkgConfig::AVUTIL
+	PkgConfig::SWSCALE
+	Opus::opus
 )
-ENDIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
+
+include(CheckIPOSupported)
+check_ipo_supported(RESULT ipo_supported OUTPUT error)
+if(ipo_supported)
+  set_property(TARGET libmedia_codec PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif()
+
+install(
+  TARGETS libmedia_codec
+  DESTINATION .
+  COMPONENT libmedia_codec)
