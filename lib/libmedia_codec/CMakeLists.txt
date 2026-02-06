@@ -32,12 +32,15 @@ endif()
 pybind11_add_module(libmedia_codec src/media_codec.cpp)
 
 target_link_libraries(libmedia_codec PRIVATE
-	"-Wl,-Bsymbolic"
 	PkgConfig::AVCODEC
 	PkgConfig::AVUTIL
 	PkgConfig::SWSCALE
 	Opus::opus
 )
+
+if(CMAKE_COMPILER_IS_GNUCXX)
+  target_link_libraries(libmedia_codec PRIVATE "-Wl,-Bsymbolic")
+endif()
 
 set_target_properties(libmedia_codec PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
