@@ -7,35 +7,60 @@ env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   VCPKG_FEATURE_FLAGS: dependencygraph
   VCPKG_ROOT: ${{ github.workspace }}/vcpkg
+  VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/vcpkg/archives
 jobs:
-  build:
+  deps:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           path: src/sdk
+      - name: load cache
+        uses: actions/cache/restore@v4
+        id: load_cache
+        with:
+          path: vcpkg
+          key: ubuntu-latest-${{ hashFiles('src/sdk/lib/libmedia_codec/vcpkg.json') }}
+      - if: steps.load_cache.outputs.cache-hit != 'true'
+        name: install apt deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install nasm -y
+      - if: steps.load_cache.outputs.cache-hit != 'true'
+        name: vcpkg build
+        uses: johnwason/vcpkg-action@v7
+        id: vcpkg
+        with:
+          triplet: x64-linux-release
+          cache-key: ubuntu-latest
+          revision: master
+          token: ${{ github.token }}
+          manifest-dir: ${{ github.workspace }}/src/sdk/lib/libmedia_codec
+      - if: steps.load_cache.outputs.cache-hit != 'true'
+        name: save cache
+        uses: actions/cache/save@v4
+        with:
+          path: vcpkg
+          key: ubuntu-latest-${{ hashFiles('src/sdk/lib/libmedia_codec/vcpkg.json') }}
+  wheel:
+    needs:
+      - deps
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: src/sdk
+      - name: load cache
+        uses: actions/cache/restore@v4
+        id: load_cache
+        with:
+          path: vcpkg
+          key: ubuntu-latest-${{ hashFiles('src/sdk/lib/libmedia_codec/vcpkg.json') }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.14"
       - name: install deps
         run: pip install build
-      - name: install apt deps
-        run: |
-          sudo apt-get update
-          sudo apt-get install nasm -y
-      - name: vcpkg
-        uses: lukka/run-vcpkg@v11
-        with:
-          vcpkgJsonGlob: ${{ github.workspace }}/src/sdk/lib/libmedia_codec/vcpkg.json
-      # - name: vcpkg build
-      #   uses: johnwason/vcpkg-action@v7
-      #   id: vcpkg
-      #   with:
-      #     triplet: x64-linux-release
-      #     cache-key: ubuntu-latest
-      #     revision: master
-      #     token: ${{ github.token }}
-      #     manifest-dir: ${{ github.workspace }}/src/sdk/lib/libmedia_codec
       - name: build wheel
         run: |
           cd src/sdk/lib/libmedia_codec
@@ -46,6 +71,3 @@ jobs:
           name: wheel-${{ runner.os }}-${{ runner.arch }}-py3.14
           path: src/sdk/lib/libmedia_codec/dist/*
           if-no-files-found: error
-
-
-
