@@ -33,11 +33,6 @@ jobs:
           token: ${{ github.token }}
           pkgs: opus
           # manifest-dir: ${{ github.workspace }}/src/sdk/lib/libmedia_codec
-      # - name: Bootstrap vcpkg
-      #   shell: bash
-      #   run: ${{ github.workspace }}/vcpkg/bootstrap-vcpkg.sh
-      # - name: Run vcpkg
-      #   run: ${{ github.workspace }}/vcpkg/vcpkg install --dry-run
       - name: build wheel
         run: |
           cd src/sdk/lib/libmedia_codec
