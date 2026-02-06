@@ -18,12 +18,23 @@ jobs:
           python-version: "3.14"
       - name: install deps
         run: pip install build
-      - name: Bootstrap vcpkg
-        shell: bash
-        run: ${{ github.workspace }}/vcpkg/bootstrap-vcpkg.sh
+      - name: vcpkg build
+        uses: johnwason/vcpkg-action@v7
+        id: vcpkg
+        with:
+          triplet: x64-linux-release
+          cache-key: ubuntu-latest
+          revision: master
+          token: ${{ github.token }}
+      # - name: Bootstrap vcpkg
+      #   shell: bash
+      #   run: ${{ github.workspace }}/vcpkg/bootstrap-vcpkg.sh
       # - name: Run vcpkg
       #   run: ${{ github.workspace }}/vcpkg/vcpkg install --dry-run
       - name: build wheel
         run: |
           cd src/sdk/lib/libmedia_codec
           python -m build -w
+
+
+
