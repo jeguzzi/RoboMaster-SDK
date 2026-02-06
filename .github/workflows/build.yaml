@@ -21,7 +21,7 @@ jobs:
       - name: install apt deps
         run: |
           sudo apt-get update
-          sudo apt-get nasm
+          sudo apt-get install nasm -y
       - name: vcpkg build
         uses: johnwason/vcpkg-action@v7
         id: vcpkg
