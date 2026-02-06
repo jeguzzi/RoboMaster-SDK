@@ -58,7 +58,7 @@ jobs:
           key: ubuntu-latest-${{ hashFiles('src/sdk/lib/libmedia_codec/vcpkg.json') }}
       - run: |
           ls -lah .
-          ls -lah vpkg
+          ls -lah vcpkg
       - uses: actions/setup-python@v5
         with:
           python-version: "3.14"
