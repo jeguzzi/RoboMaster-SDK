@@ -31,8 +31,7 @@ jobs:
           cache-key: ubuntu-latest
           revision: master
           token: ${{ github.token }}
-          pkgs: opus
-          # manifest-dir: ${{ github.workspace }}/src/sdk/lib/libmedia_codec
+          manifest-dir: ${{ github.workspace }}/src/sdk/lib/libmedia_codec
       - name: build wheel
         run: |
           cd src/sdk/lib/libmedia_codec
