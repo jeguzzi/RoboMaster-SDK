@@ -6,6 +6,7 @@ permissions:
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   VCPKG_FEATURE_FLAGS: dependencygraph
+  VCPKG_ROOT: ${{ github.workspace }}/vcpkg
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -40,6 +41,12 @@ jobs:
         run: |
           cd src/sdk/lib/libmedia_codec
           python -m build -w
+      - name: archive wheel
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheel-${{ runner.os }}-${{ runner.arch }}-py3.14
+          path: src/sdk/lib/libmedia_codec/dist/*
+          if-no-files-found: error
 
 
 
