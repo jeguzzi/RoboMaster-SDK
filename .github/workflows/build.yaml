@@ -10,7 +10,12 @@ env:
   VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/vcpkg/archives
 jobs:
   deps:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os:
+          - ubuntu-22.04
+          - ubuntu-22.04-arm
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -28,6 +33,14 @@ jobs:
           token: ${{ github.token }}
           manifest-dir: ${{ github.workspace }}/src/sdk/lib/libmedia_codec
   wheel:
+    strategy:
+      matrix:
+        os:
+          - ubuntu-22.04
+          - ubuntu-22.04-arm
+        python-version:
+          - "3.13"
+          - "3.14"
     needs:
       - deps
     runs-on: ubuntu-latest
@@ -45,16 +58,17 @@ jobs:
           manifest-dir: ${{ github.workspace }}/src/sdk/lib/libmedia_codec
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.14"
+          python-version: ${{ matrix.python-version }}
       - name: install deps
-        run: pip install build
+        run: pip install build repairwheel
       - name: build wheel
         run: |
           cd src/sdk/lib/libmedia_codec
           python -m build -w
+          repairwheel -o repaired_dist dist/*.whl
       - name: archive wheel
         uses: actions/upload-artifact@v4
         with:
-          name: wheel-${{ runner.os }}-${{ runner.arch }}-py3.14
-          path: src/sdk/lib/libmedia_codec/dist/*
+          name: wheel-${{ runner.os }}-${{ runner.arch }}-py${{ matrix.python-version }}
+          path: src/sdk/lib/libmedia_codec/repaired_dist/*
           if-no-files-found: error
