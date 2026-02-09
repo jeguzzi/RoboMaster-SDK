@@ -7,7 +7,7 @@ env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   VCPKG_ROOT: ${{ github.workspace }}/vcpkg
 jobs:
-  deps:
+  wheel:
     strategy:
       matrix:
         config:
@@ -15,6 +15,11 @@ jobs:
             vcpkg_triplet: x64-linux-release
           - os: ubuntu-22.04-arm
             vcpkg_triplet: arm64-linux-release
+        python-version:
+          - "3.13"
+          - "3.14"
+    needs:
+      - deps
     runs-on: ${{ matrix.config.os }}
     steps:
       - uses: actions/checkout@v4
@@ -34,35 +39,6 @@ jobs:
           revision: master
           token: ${{ github.token }}
           manifest-dir: ${{ github.workspace }}/src/sdk/lib/libmedia_codec
-      - name: save cache
-        uses: actions/cache/save@v4
-        with:
-          path: vcpkg
-          key: robomaster-libmedia-codec-deps-${{ matrix.config.vcpkg_triplet }}
-  wheel:
-    strategy:
-      matrix:
-        config:
-          - os: ubuntu-22.04
-            vcpkg_triplet: x64-linux-release
-          - os: ubuntu-22.04-arm
-            vcpkg_triplet: arm64-linux-release
-        python-version:
-          - "3.13"
-          - "3.14"
-    needs:
-      - deps
-    runs-on: ${{ matrix.config.os }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          path: src/sdk
-      - name: load cache
-        uses: actions/cache/restore@v4
-        id: load_cache
-        with:
-          path: vcpkg
-          key: robomaster-libmedia-codec-deps-${{ matrix.config.vcpkg_triplet }}
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
