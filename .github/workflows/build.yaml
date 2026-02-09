@@ -45,7 +45,7 @@ jobs:
       - name: build wheel
         run: |
           cd src/sdk/lib/libmedia_codec
-          python -m build -w
+          python -m build -w --config-setting cmake.define.VCPKG_TARGET_TRIPLET=${{ matrix.config.vcpkg_triplet }}
           repairwheel -o repaired_dist dist/*.whl
       - name: archive wheel
         uses: actions/upload-artifact@v4
