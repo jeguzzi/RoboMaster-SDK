@@ -4,6 +4,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_BUILD_TYPE Release)
 set(VCPKG_BUILD_TYPE Release)
+set(CMAKE_OSX_DEPLOYMENT_TARGET 10.15)
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(AVCODEC    REQUIRED    IMPORTED_TARGET libavcodec)
