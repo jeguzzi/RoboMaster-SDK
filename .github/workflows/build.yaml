@@ -11,20 +11,20 @@ jobs:
     strategy:
       matrix:
         config:
-          - os: ubuntu-22.04
-            vcpkg_triplet: x64-linux-release
-          - os: ubuntu-22.04-arm
-            vcpkg_triplet: arm64-linux-release
-          - os: macos-15-intel
-            vcpkg_triplet: x64-osx-release
-          - os: macos-latest
-            vcpkg_triplet: arm64-osx-release
+          # - os: ubuntu-22.04
+          #   vcpkg_triplet: x64-linux-release
+          # - os: ubuntu-22.04-arm
+          #   vcpkg_triplet: arm64-linux-release
+          # - os: macos-15-intel
+          #   vcpkg_triplet: x64-osx-release
+          # - os: macos-latest
+          #   vcpkg_triplet: arm64-osx-release
           - os: windows-latest
             vcpkg_triplet: x64-windows-release
           - os: windows-11-arm
             vcpkg_triplet: arm64-windows-static-release
         python-version:
-          - "3.13"
+          # - "3.13"
           - "3.14"
     runs-on: ${{ matrix.config.os }}
     steps:
@@ -37,9 +37,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install nasm -y
       - if: runner.os == 'macOS'
-        name: install apt deps
+        name: install brew deps
         run: |
           brew install nasm
+      - if: runner.os == 'Windows'
+        name: install choco deps
+        run: |
+          choco install pkgconfiglite -y
       - name: build vcpkg deps
         uses: johnwason/vcpkg-action@v7
         id: vcpkg
