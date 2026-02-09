@@ -95,7 +95,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: testpypi
-      url: https://test.pypi.org/p/rm_libmedia_codec
+      url: https://test.pypi.org/p/rm-libmedia-codec
     permissions:
       id-token: write  # IMPORTANT: mandatory for trusted publishing
     steps:
