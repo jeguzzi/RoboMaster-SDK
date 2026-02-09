@@ -15,9 +15,9 @@
 
 
 import numpy
-import audioop
 import wave
 import time
+import sys
 from . import module
 from . import conn
 from . import protocol
@@ -356,6 +356,11 @@ class EPCamera(module.Module, Camera):
         :param sample_rate: 采样率
         :return: bool: 调用结果
         """
+        try:
+            import audioop
+        except ImportError as e:
+            print(e, file=sys.stderr)
+            return
         self.start_audio_stream()
         start = time.time()
         try:
