@@ -1,5 +1,6 @@
 build
 dist
+lib
 
 *.egg-info
 __pycache__
