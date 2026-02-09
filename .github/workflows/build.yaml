@@ -40,7 +40,7 @@ jobs:
         name: install apt deps
         run: |
           brew install nasm
-      - name: vcpkg build
+      - name: build vcpkg deps
         uses: johnwason/vcpkg-action@v7
         id: vcpkg
         with:
@@ -52,12 +52,29 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - name: install deps
+      - name: install pip deps
         run: pip install build repairwheel
       - name: build wheel
+        if: runner.os == 'Windows'
+        run: |
+          cd src\sdk\lib\libmedia_codec
+          python -m build -w --config-setting cmake.define.VCPKG_TARGET_TRIPLET=${{ matrix.config.vcpkg_triplet }}
+          $fileNames = Get-ChildItem -Path dist -Recurse -Include *.whl
+          repairwheel -o repaired_dist $fileNames[0]
+      - name: build wheel
+        if: runner.os == 'Linux'
         run: |
           cd src/sdk/lib/libmedia_codec
           python -m build -w --config-setting cmake.define.VCPKG_TARGET_TRIPLET=${{ matrix.config.vcpkg_triplet }}
+          repairwheel -o repaired_dist dist/*.whl
+      - name: build wheel
+        if: runner.os == 'macOS'
+        env:
+          MACOSX_DEPLOYMENT_TARGET: ${{ runner.arch == 'X64' && '10.15' || '11.0' }}
+          ARCH: ${{ runner.arch == 'X64' && 'x86_64' || 'arm64' }}
+        run: |
+          cd src/sdk/lib/libmedia_codec
+          ARCHFLAGS="-arch $ARCH" _PYTHON_HOST_PLATFORM="macosx-$MACOSX_DEPLOYMENT_TARGET-$ARCH" python -m build -w --config-setting cmake.define.VCPKG_TARGET_TRIPLET=${{ matrix.config.vcpkg_triplet }}
           repairwheel -o repaired_dist dist/*.whl
       - name: archive wheel
         uses: actions/upload-artifact@v4
