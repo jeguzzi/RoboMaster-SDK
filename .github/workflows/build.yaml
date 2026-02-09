@@ -22,7 +22,7 @@ jobs:
           - os: windows-latest
             vcpkg_triplet: x64-windows-release
           - os: windows-11-arm
-            vcpkg_triplet: arm64-windows-release
+            vcpkg_triplet: arm64-windows-static-release
         python-version:
           - "3.13"
           - "3.14"
