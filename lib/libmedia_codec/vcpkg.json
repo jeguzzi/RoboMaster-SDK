@@ -1,0 +1,13 @@
+{
+  "dependencies": [
+    "opus",
+    {
+      "name": "ffmpeg",
+      "default-features": false,
+      "features": [
+        "avcodec",
+        "swscale"
+      ]
+    }
+  ]
+}

@@ -43,6 +43,10 @@ extern "C" {
 using ubyte = unsigned char;
 namespace py = pybind11;
 
+#if defined(_MSC_VER)
+#include <BaseTsd.h>
+typedef SSIZE_T ssize_t;
+#endif
 
 class CodecException : public std::runtime_error {
 public:
