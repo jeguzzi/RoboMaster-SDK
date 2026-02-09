@@ -107,6 +107,9 @@ jobs:
       - run: |
           echo "Ignore generic linux wheels:" $(find dist -type f | grep linux_x86_64)
           rm -f dist/*linux_x86_64*
+      - run: |
+          echo "Ignore wrong macos wheels:" $(find dist -type f | grep linux_x86_64)
+          rm -f dist/*macosx_26_0*
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:
           repository-url: https://test.pypi.org/legacy/
