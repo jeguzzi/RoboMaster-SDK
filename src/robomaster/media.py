@@ -20,8 +20,8 @@ import threading
 import queue
 import libmedia_codec
 import numpy
-import cv2
 import time
+import sys
 
 
 class LiveView(object):
@@ -142,6 +142,12 @@ class LiveView(object):
         logger.info("LiveView: _video_decoder_task, quit.")
 
     def _video_display_task(self, name="RoboMaster LiveView"):
+        try:
+            import cv2
+        except ImportError as e:
+            print(e, file=sys.stderr)
+            return
+
         self._displaying = True
         logger.info("Liveview: _video_display_task, started!")
         while self._displaying & self._video_streaming:
