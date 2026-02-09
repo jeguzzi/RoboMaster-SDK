@@ -5,7 +5,6 @@ permissions:
   contents: write
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  # VCPKG_FEATURE_FLAGS: dependencygraph
   VCPKG_ROOT: ${{ github.workspace }}/vcpkg
 jobs:
   deps:
@@ -30,10 +29,16 @@ jobs:
         uses: johnwason/vcpkg-action@v7
         id: vcpkg
         with:
+          disable-cache: true
           triplet: ${{ matrix.config.vcpkg_triplet }}
           revision: master
           token: ${{ github.token }}
           manifest-dir: ${{ github.workspace }}/src/sdk/lib/libmedia_codec
+      - name: save cache
+        uses: actions/cache/save@v4
+        with:
+          path: vcpkg
+          key: robomaster-libmedia-codec-deps-${{ matrix.config.vcpkg_triplet }}
   wheel:
     strategy:
       matrix:
@@ -52,19 +57,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           path: src/sdk
-      - if: runner.os == 'Linux'
-        name: install apt deps
-        run: |
-          sudo apt-get update
-          sudo apt-get install nasm -y
-      - name: vcpkg build
-        uses: johnwason/vcpkg-action@v7
-        id: vcpkg
+      - name: load cache
+        uses: actions/cache/restore@v4
+        id: load_cache
         with:
-          triplet: ${{ matrix.config.vcpkg_triplet }}
-          revision: master
-          token: ${{ github.token }}
-          manifest-dir: ${{ github.workspace }}/src/sdk/lib/libmedia_codec
+          path: vcpkg
+          key: robomaster-libmedia-codec-deps-${{ matrix.config.vcpkg_triplet }}
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
