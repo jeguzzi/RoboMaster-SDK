@@ -20,7 +20,7 @@ jobs:
           # - os: macos-latest
           #   vcpkg_triplet: arm64-osx-release
           - os: windows-latest
-            vcpkg_triplet: x64-windows-release
+            vcpkg_triplet: x64-windows-static-release
           - os: windows-11-arm
             vcpkg_triplet: arm64-windows-static-release
         python-version:
