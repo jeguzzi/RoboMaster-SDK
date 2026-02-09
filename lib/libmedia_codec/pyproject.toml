@@ -21,6 +21,10 @@ classifiers = [
   "Programming Language :: Python"
 ]
 
+[project.urls]
+Repository = "https://github.com/jeguzzi/RoboMaster-SDK.git"
+
+
 [tool.scikit-build]
 minimum-version = "build-system.requires"
 install.components = ["libmedia_codec"]
