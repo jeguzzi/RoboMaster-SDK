@@ -16,11 +16,8 @@
 
 import os
 import threading
-import netifaces
 import socket
-import netaddr
 import time
-from netaddr import IPNetwork
 from . import protocol
 from . import logger
 from . import action
@@ -430,6 +427,9 @@ class Drone(RobotBase):
         :return: list[str]: subnets
                  list[str]: addr_list
         """
+        import netifaces
+        import netaddr
+
         subnets = []
         ifaces = netifaces.interfaces()
         addr_list = []
@@ -460,13 +460,15 @@ class Drone(RobotBase):
         :param num: Number of Tello this method is expected to find
         :return: None
         """
+        import netaddr
+
         logger.info('[Start_Searching]Searching for available Tello...\n')
 
         subnets, address = self.get_subnets()
         possible_addr = []
 
         for subnet, netmask in subnets:
-            for ip in IPNetwork('%s/%s' % (subnet, netmask)):
+            for ip in netaddr.IPNetwork('%s/%s' % (subnet, netmask)):
                 # skip local and broadcast
                 if str(ip).split('.')[3] == '0' or str(ip).split('.')[3] == '255':
                     continue

@@ -47,8 +47,6 @@ setup(
     },
     install_requires=[
         'numpy >= 1.18',
-        'netaddr >= 0.8',
-        'netifaces >= 0.10',
     ],
     extras_require={
         'view': [
@@ -57,7 +55,9 @@ setup(
         'all': [
             "opencv-python >= 4.2",
             'myqr >= 2.3',
-            'audioop-lts; python_version > "3.12"'
+            'audioop-lts; python_version > "3.12"',
+            'netaddr >= 0.8',
+            'netifaces >= 0.10',
         ]
     }
 )

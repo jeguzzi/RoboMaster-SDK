@@ -16,9 +16,6 @@
 
 import time
 import traceback
-import netifaces
-import netaddr
-from netaddr import IPNetwork
 import socket
 import queue
 import threading
@@ -91,6 +88,9 @@ def get_subnets():
     :return: list[str]: subnets
              list[str]: addr_list
     """
+    import netifaces
+    import netaddr
+
     subnets = []
     ifaces = netifaces.interfaces()
     addr_list = []
@@ -227,6 +227,8 @@ class TelloConnection(object):
         :param num: Number of Tello this method is expected to find
         :return: None
         """
+        import netaddr
+
         logger.info('[Start_Searching]Searching for %s available Tello...\n' % num)
 
         subnets, address = get_subnets()
