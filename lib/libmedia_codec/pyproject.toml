@@ -3,8 +3,23 @@ requires = ["scikit-build-core>=0.11"]
 build-backend = "scikit_build_core.build"
 
 [project]
-name = "libmedia_codec"
+name = "rm_libmedia_codec"
 version = "0.0.1"
+requires-python = ">=3.10"
+authors = [
+  {name = "DJI's EDU SDK TEAM"},
+]
+maintainers = [
+  {name = "Jerome Guzzi", email = "jerome@idsia.ch"}
+]
+description = "RoboMaster Python SDK libmedia_codec package."
+readme = "README.md"
+license = {file = "LICENSE"}
+keywords = [""]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python"
+]
 
 [tool.scikit-build]
 minimum-version = "build-system.requires"
