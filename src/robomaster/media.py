@@ -95,11 +95,17 @@ class LiveView(object):
 
     def read_video_frame(self, timeout=3, strategy="pipeline"):
         if strategy == "pipeline":
-            return self._video_frame_queue.get(timeout=timeout)
+            try:
+                return self._video_frame_queue.get(timeout=timeout)
+            except queue.Empty:
+                return None
         elif strategy == "newest":
             while self._video_frame_queue.qsize() > 1:
                 self._video_frame_queue.get(timeout=timeout)
-            return self._video_frame_queue.get(timeout=timeout)
+            try:
+                return self._video_frame_queue.get(timeout=timeout)
+            except queue.Empty:
+                return None
         else:
             logger.warning("LiveView: read_video_frame, unsupported strategy:{0}".format(strategy))
             return None
