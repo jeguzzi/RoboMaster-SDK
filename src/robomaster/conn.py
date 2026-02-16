@@ -71,8 +71,10 @@ def scan_robot_ip(user_sn=None, timeout=3.0):
         # if user specifies SN
         if user_sn:
             # check the validity of input SN
-            if config.ROBOT_SN_LEN != len(user_sn):
-                raise Exception("The length of SN is invalid!")
+            # CHANGED(Jerome): relaxed robot serial number to match the
+            # beginning of the requested serial number
+            # if config.ROBOT_SN_LEN != len(user_sn):
+            #     raise Exception("The length of SN is invalid!")
             find_robot = False
             robot_ip = None
             start = time.time()
@@ -86,7 +88,10 @@ def scan_robot_ip(user_sn=None, timeout=3.0):
                 data, ip = s.recvfrom(1024)
                 recv_sn = get_sn_form_data(data)
                 logger.info("conn: scan_robot_ip, data:{0}, ip:{1}".format(recv_sn, ip))
-                if recv_sn == user_sn:
+                # CHANGED(Jerome): relaxed robot serial number to match the
+                # beginning of the requested serial number
+                # if recv_sn == user_sn:
+                if recv_sn.startswith(user_sn):
                     robot_ip = ip[0]
                     find_robot = True
             if robot_ip:
@@ -525,9 +530,14 @@ class ConnectionHelper:
             while True:
                 data, ip = s.recvfrom(1024)
                 if data:
+                    # logger.debug(f'encrypted {binascii.hexlify(data)} from {ip}')
                     decode_buf = algo.simple_encrypt(data)
+                    # logger.debug(f'decrypted {binascii.hexlify(decode_buf)}')
                     conn_info = protocol.STAConnInfo()
                     if conn_info.unpack(decode_buf):
+                        # logger.debug(
+                        #     f'conn_info: is_pairing {conn_info._is_pairing}, ip {conn_info._ip}, '
+                        #     f'mac {conn_info._mac}, recv_appid {conn_info._recv_appid}')
                         if conn_info._recv_appid == self._appid:
                             s.sendto(self._appid.encode(encoding='utf-8'), ip)
                             return True
