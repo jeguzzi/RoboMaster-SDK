@@ -1,4 +1,4 @@
-# Robomaster SDK libmedia-coded
+# Robomaster SDK libmedia-codec
 
 This package is used by the RoboMaster-SDK Python client. 
 
