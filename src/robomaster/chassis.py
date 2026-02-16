@@ -343,6 +343,7 @@ class Chassis(module.Module):
 
     def _set_mode(self, mode):
         proto = protocol.ProtoChassisSetWorkMode()
+        proto._mode = 1 if mode else 0
         return self._send_sync_proto(proto)
 
     def _get_mode(self):
